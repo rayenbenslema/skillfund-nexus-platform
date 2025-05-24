@@ -7,6 +7,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthPage } from "@/pages/AuthPage";
 import { Dashboard } from "@/pages/Dashboard";
+import { JobsPage } from "@/pages/JobsPage";
+import { CampaignsPage } from "@/pages/CampaignsPage";
+import { MessagesPage } from "@/pages/MessagesPage";
+import { ProfilePage } from "@/pages/ProfilePage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -46,11 +50,26 @@ const AppRoutes = () => {
           <Dashboard />
         </ProtectedRoute>
       } />
-      {/* Placeholder routes for future implementation */}
-      <Route path="/jobs" element={<ProtectedRoute><div className="p-4">Jobs page coming soon!</div></ProtectedRoute>} />
-      <Route path="/campaigns" element={<ProtectedRoute><div className="p-4">Campaigns page coming soon!</div></ProtectedRoute>} />
-      <Route path="/messages" element={<ProtectedRoute><div className="p-4">Messages page coming soon!</div></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><div className="p-4">Profile page coming soon!</div></ProtectedRoute>} />
+      <Route path="/jobs" element={
+        <ProtectedRoute>
+          <JobsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/campaigns" element={
+        <ProtectedRoute>
+          <CampaignsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/messages" element={
+        <ProtectedRoute>
+          <MessagesPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
