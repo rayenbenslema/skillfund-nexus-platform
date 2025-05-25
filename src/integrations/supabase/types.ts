@@ -101,13 +101,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "contributions_backer_id_fkey"
-            columns: ["backer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "contributions_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
@@ -128,7 +121,7 @@ export type Database = {
           budget_max: number | null
           budget_min: number | null
           category: string
-          client_id: string
+          client_id: string | null
           created_at: string | null
           deadline: string | null
           description: string
@@ -143,7 +136,7 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           category: string
-          client_id: string
+          client_id?: string | null
           created_at?: string | null
           deadline?: string | null
           description: string
@@ -158,7 +151,7 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           category?: string
-          client_id?: string
+          client_id?: string | null
           created_at?: string | null
           deadline?: string | null
           description?: string
@@ -204,39 +197,24 @@ export type Database = {
           recipient_id?: string
           sender_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_recipient_id_fkey"
-            columns: ["recipient_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
-          email: string
+          email: string | null
           full_name: string | null
           hourly_rate: number | null
           id: string
-          interests: string[] | null
+          interests: string | null
           is_verified: boolean | null
           location: string | null
-          primary_role: Database["public"]["Enums"]["user_role"]
+          primary_role: Database["public"]["Enums"]["user_role"] | null
           rating: number | null
           reviews_count: number | null
-          skills: string[] | null
+          skills: string | null
           total_earned: number | null
           updated_at: string | null
           website: string | null
@@ -245,17 +223,17 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          email: string
+          email?: string | null
           full_name?: string | null
           hourly_rate?: number | null
           id: string
-          interests?: string[] | null
+          interests?: string | null
           is_verified?: boolean | null
           location?: string | null
-          primary_role: Database["public"]["Enums"]["user_role"]
+          primary_role?: Database["public"]["Enums"]["user_role"] | null
           rating?: number | null
           reviews_count?: number | null
-          skills?: string[] | null
+          skills?: string | null
           total_earned?: number | null
           updated_at?: string | null
           website?: string | null
@@ -264,17 +242,17 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
-          email?: string
+          email?: string | null
           full_name?: string | null
           hourly_rate?: number | null
           id?: string
-          interests?: string[] | null
+          interests?: string | null
           is_verified?: boolean | null
           location?: string | null
-          primary_role?: Database["public"]["Enums"]["user_role"]
+          primary_role?: Database["public"]["Enums"]["user_role"] | null
           rating?: number | null
           reviews_count?: number | null
-          skills?: string[] | null
+          skills?: string | null
           total_earned?: number | null
           updated_at?: string | null
           website?: string | null
@@ -313,13 +291,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["proposal_status"] | null
         }
         Relationships: [
-          {
-            foreignKeyName: "proposals_freelancer_id_fkey"
-            columns: ["freelancer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "proposals_job_id_fkey"
             columns: ["job_id"]

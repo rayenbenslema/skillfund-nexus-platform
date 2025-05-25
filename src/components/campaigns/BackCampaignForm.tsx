@@ -42,14 +42,27 @@ export const BackCampaignForm = ({ campaign, onSuccess }: BackCampaignFormProps)
 
       if (error) throw error;
 
-      // Update campaign amounts
-      const { error: updateError } = await supabase.rpc('update_campaign_funding', {
-        campaign_id: campaign.id,
-        contribution_amount: data.amount
-      });
+      // Update campaign amounts using a direct update query instead of RPC
+      const { data: campaignData, error: fetchError } = await supabase
+        .from('campaigns')
+        .select('current_amount, backers_count')
+        .eq('id', campaign.id)
+        .single();
 
-      if (updateError) {
-        console.error('Error updating campaign totals:', updateError);
+      if (fetchError) {
+        console.error('Error fetching campaign data:', fetchError);
+      } else {
+        const { error: updateError } = await supabase
+          .from('campaigns')
+          .update({
+            current_amount: (campaignData.current_amount || 0) + data.amount,
+            backers_count: (campaignData.backers_count || 0) + 1
+          })
+          .eq('id', campaign.id);
+
+        if (updateError) {
+          console.error('Error updating campaign totals:', updateError);
+        }
       }
 
       toast({
