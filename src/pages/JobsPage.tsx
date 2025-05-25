@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Search, MapPin, Clock, DollarSign } from 'lucide-react';
+import { Plus, Search, Clock, DollarSign } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { JobPostForm } from '@/components/jobs/JobPostForm';
@@ -25,7 +25,8 @@ interface Job {
   skills_required: string[];
   proposals_count: number;
   created_at: string;
-  client: {
+  client_id: string;
+  client?: {
     full_name: string;
     location: string;
     rating: number;
@@ -57,19 +58,68 @@ export const JobsPage = () => {
 
   const fetchJobs = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Fetching jobs...');
+      
+      // First get the jobs
+      const { data: jobsData, error: jobsError } = await supabase
         .from('jobs')
-        .select(`
-          *,
-          client:profiles!jobs_client_id_fkey(full_name, location, rating)
-        `)
+        .select('*')
         .eq('status', 'open')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setJobs(data || []);
+      if (jobsError) {
+        console.error('Jobs error:', jobsError);
+        throw jobsError;
+      }
+
+      console.log('Jobs data:', jobsData);
+
+      if (jobsData && jobsData.length > 0) {
+        // Get unique client IDs
+        const clientIds = [...new Set(jobsData.map(job => job.client_id).filter(Boolean))];
+        
+        if (clientIds.length > 0) {
+          // Then get client profiles
+          const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, full_name, location, rating')
+            .in('id', clientIds);
+
+          if (profilesError) {
+            console.error('Profiles error:', profilesError);
+          }
+
+          console.log('Profiles data:', profilesData);
+
+          // Combine jobs with client profiles
+          const jobsWithClients = jobsData.map(job => ({
+            ...job,
+            client: profilesData?.find(profile => profile.id === job.client_id) || {
+              full_name: 'Anonymous Client',
+              location: 'Not specified',
+              rating: 0
+            }
+          }));
+
+          setJobs(jobsWithClients);
+        } else {
+          // No client IDs, set jobs without client data
+          const jobsWithDefaultClients = jobsData.map(job => ({
+            ...job,
+            client: {
+              full_name: 'Anonymous Client',
+              location: 'Not specified', 
+              rating: 0
+            }
+          }));
+          setJobs(jobsWithDefaultClients);
+        }
+      } else {
+        setJobs([]);
+      }
     } catch (error) {
       console.error('Error fetching jobs:', error);
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -90,6 +140,7 @@ export const JobsPage = () => {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString();
   };
 
@@ -222,7 +273,7 @@ export const JobsPage = () => {
                           </div>
                         )}
                       </div>
-                      <span>{job.proposals_count} proposals</span>
+                      <span>{job.proposals_count || 0} proposals</span>
                     </div>
                     
                     {profile?.primary_role === 'freelancer' && (
