@@ -80,19 +80,41 @@ export const MessagesPage = () => {
 
   const fetchMessages = async (contactId: string) => {
     try {
-      const { data, error } = await supabase
+      // First get the messages
+      const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
-        .select(`
-          *,
-          sender:profiles!messages_sender_id_fkey(full_name, avatar_url)
-        `)
+        .select('*')
         .or(`and(sender_id.eq.${user?.id},recipient_id.eq.${contactId}),and(sender_id.eq.${contactId},recipient_id.eq.${user?.id})`)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
-      setMessages(data || []);
+      if (messagesError) throw messagesError;
+
+      // Then get sender profiles for each message
+      if (messagesData && messagesData.length > 0) {
+        const senderIds = [...new Set(messagesData.map(msg => msg.sender_id))];
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .in('id', senderIds);
+
+        if (profilesError) throw profilesError;
+
+        // Combine messages with sender profiles
+        const messagesWithSenders = messagesData.map(message => ({
+          ...message,
+          sender: profilesData?.find(profile => profile.id === message.sender_id) || {
+            full_name: 'Unknown User',
+            avatar_url: ''
+          }
+        }));
+
+        setMessages(messagesWithSenders);
+      } else {
+        setMessages([]);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
+      setMessages([]);
     }
   };
 
