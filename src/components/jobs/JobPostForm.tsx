@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,7 +28,6 @@ export const JobPostForm = ({ onSuccess }: JobPostFormProps) => {
   const { user } = useAuth();
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const form = useForm<JobFormData>();
 
@@ -55,7 +53,6 @@ export const JobPostForm = ({ onSuccess }: JobPostFormProps) => {
   };
 
   const onSubmit = async (data: JobFormData) => {
-    setLoading(true);
     try {
       const { error } = await supabase
         .from('jobs')
@@ -85,8 +82,6 @@ export const JobPostForm = ({ onSuccess }: JobPostFormProps) => {
         description: "Failed to post job. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -238,9 +233,8 @@ export const JobPostForm = ({ onSuccess }: JobPostFormProps) => {
         <Button 
           type="submit" 
           className="w-full bg-[#00B894] hover:bg-[#00A085]"
-          disabled={loading}
         >
-          {loading ? 'Posting...' : 'Post Job'}
+          Post Job
         </Button>
       </form>
     </Form>

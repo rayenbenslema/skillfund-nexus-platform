@@ -26,12 +26,10 @@ interface ProposalFormData {
 
 export const ProposalForm = ({ job, onSuccess }: ProposalFormProps) => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
 
   const form = useForm<ProposalFormData>();
 
   const onSubmit = async (data: ProposalFormData) => {
-    setLoading(true);
     try {
       const { error } = await supabase
         .from('proposals')
@@ -58,8 +56,6 @@ export const ProposalForm = ({ job, onSuccess }: ProposalFormProps) => {
         description: "Failed to submit proposal. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -131,9 +127,8 @@ export const ProposalForm = ({ job, onSuccess }: ProposalFormProps) => {
           <Button 
             type="submit" 
             className="w-full bg-[#00B894] hover:bg-[#00A085]"
-            disabled={loading}
           >
-            {loading ? 'Submitting...' : 'Submit Proposal'}
+            Submit Proposal
           </Button>
         </form>
       </Form>
